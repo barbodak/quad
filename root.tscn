@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3 uid="uid://bs3wao3xrtlmq"]
+
+[ext_resource type="Script" uid="uid://btn8i0m76hx2y" path="res://Scripts/Camera/debug_camera_controller.gd" id="1_hekff"]
+[ext_resource type="Script" uid="uid://7n58awc2ols0" path="res://Scripts/draw_terrain.gd" id="2_pyidc"]
+
+[sub_resource type="Environment" id="Environment_7owt0"]
+background_mode = 1
+background_color = Color(0.239216, 0.239216, 0.239216, 1)
+tonemap_white = 1.68
+glow_normalized = true
+glow_intensity = 1.75
+glow_strength = 1.65
+glow_bloom = 0.33
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_vvh5c"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 4
+needs_motion_vectors = false
+needs_normal_roughness = false
+script = ExtResource("2_pyidc")
+regenerate = false
+side_length = 20
+mesh_scale = 0.4
+metadata/_custom_type_script = "uid://7n58awc2ols0"
+
+[sub_resource type="Compositor" id="Compositor_1i1cu"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_vvh5c"), null])
+
+[node name="Root" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.587785, 0.0338782, 0.808308, 8.73461e-08, -0.999123, 0.0418757, 0.809017, -0.0246138, -0.587269, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-0.660041, 0, -0.75123, 0, 1, 0, 0.75123, 0, -0.660041, -92.8229, 13.9532, 87.5681)
+script = ExtResource("1_hekff")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_7owt0")
+compositor = SubResource("Compositor_1i1cu")
