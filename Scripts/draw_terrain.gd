@@ -33,6 +33,8 @@ var p_wire_index_array : RID
 var p_shader : RID
 var p_wire_shader : RID
 var clear_colors := PackedColorArray([Color.GREEN])
+var state : float = 0
+var prev_time : float = 0
 
 func _init():
 	effect_callback_type = CompositorEffect.EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
@@ -92,23 +94,24 @@ func initialize_render(framebuffer_format : int):
 	# Dump vertex data, I would delete this but it's probably helpful definitely do not uncomment this if your mesh has more than a couple vertices
 	# for i in vertex_count:
 	
-	var j = 0
-	var pos = Vector3()
+	# for i in vertex_count:
+	# 	var j = 0
+	# 	var pos = Vector3()
 
-	pos.x = vertex_buffer[j]
-	pos.y = vertex_buffer[j + 1]
-	pos.z = vertex_buffer[j + 2]
+	# 	pos.x = vertex_buffer[j]
+	# 	pos.y = vertex_buffer[j + 1]
+	# 	pos.z = vertex_buffer[j + 2]
 
-	var color = Vector4()
+	# 	var color = Vector4()
 
-	color.x = vertex_buffer[j + 3]
-	color.y = vertex_buffer[j + 4]
-	color.z = vertex_buffer[j + 5]
-	color.w = vertex_buffer[j + 6]
+	# 	color.x = vertex_buffer[j + 3]
+	# 	color.y = vertex_buffer[j + 4]
+	# 	color.z = vertex_buffer[j + 5]
+	# 	color.w = vertex_buffer[j + 6]
 
-	print("Vertex " + str(0) + " ---")
-	print("Position: " + str(pos))
-	print("Color: " + str(color))
+	# 	print("Vertex " + str(0) + " ---")
+	# 	print("Position: " + str(pos))
+	# 	print("Color: " + str(color))
 
 
 
@@ -242,10 +245,18 @@ func _render_callback(_effect_callback_type : int, render_data : RenderData):
 		light_direction = light.transform.basis.z.normalized()
 
 	# Store all shader uniforms in a gpu data buffer, this isn't exactly the optimal data layout, each 1.0 push back is wasted space
+	# print(Time.get_unix_time_from_system() - floor(Time.get_unix_time_from_system()))
+
+	var tmp := Time.get_unix_time_from_system() / 1.0
+	var _time : float = tmp - floor(tmp)
+	if prev_time > _time:
+		state = 1.0 - state;
 	buffer.push_back(light_direction.x)
 	buffer.push_back(light_direction.y)
 	buffer.push_back(light_direction.z)
+	buffer.push_back(abs(state - _time))
 	buffer.push_back(1.0)
+	prev_time = _time
 	
 
 	# All of our settings are stored in a single uniform buffer, certainly not the best decision, but it's easy to work with

@@ -4,6 +4,7 @@
 layout(set = 0, binding = 0, std140) uniform UniformBufferObject {
     mat4 MVP;
     vec3 _LightDirection;
+    float _time;
 };
 
 // Receive the interpolated data from the vertex shader
@@ -14,5 +15,5 @@ layout(location = 3) in vec3 pos;
 layout(location = 0) out vec4 out_Color;
 
 void main() {
-    out_Color = vec4(1.0, 1.0, 0.0, 1.0); // solid red with full alpha
+    out_Color = vec4(_time, 1.0 - _time, 0, 1.0); // solid red with full alpha
 }

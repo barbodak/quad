@@ -4,6 +4,7 @@
 layout(set = 0, binding = 0, std140) uniform UniformBufferObject {
     mat4 MVP;
     vec3 _LightDirection;
+    float _time;
 };
 
 // This is the vertex data layout that we defined in initialize_render after line 198
@@ -13,6 +14,7 @@ layout(location = 1) in vec4 a_Color;
 // This is what the vertex shader will output and send to the fragment shader.
 layout(location = 2) out vec4 v_Color;
 layout(location = 3) out vec3 pos;
+
 
 #define PI 3.141592653589793238462
 
@@ -24,5 +26,5 @@ void main() {
     pos = a_Position;
 
     // Multiply final vertex position with model/view/projection matrices to convert to clip space
-    gl_Position = MVP * vec4(pos, 1);
+    gl_Position = MVP * vec4(pos.x * (1 + _time), _time * 3, pos.z * (1 + 5 * _time), 1);
 }
