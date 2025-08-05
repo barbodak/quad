@@ -21,7 +21,7 @@ needs_motion_vectors = false
 needs_normal_roughness = false
 script = ExtResource("2_pyidc")
 regenerate = false
-side_length = 10
+side_length = 500
 mesh_scale = 0.4
 metadata/_custom_type_script = "uid://7n58awc2ols0"
 
@@ -31,7 +31,7 @@ compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_vvh5
 [node name="Root" type="Node3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.587785, 0.0338782, 0.808308, 8.73461e-08, -0.999123, 0.0418757, 0.809017, -0.0246138, -0.587269, 0, 0, 0)
+transform = Transform3D(0.211734, -0.670522, 0.711033, -0.38816, -0.725382, -0.568465, 0.896939, -0.155631, -0.413858, -5.0947, 84.0725, 32.9342)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-0.660041, 0, -0.75123, 0, 1, 0, 0.75123, 0, -0.660041, -92.8229, 13.9532, 87.5681)

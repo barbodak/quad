@@ -35,6 +35,9 @@ var p_wire_shader : RID
 var clear_colors := PackedColorArray([Color.GREEN])
 var state : float = 0
 var prev_time : float = 0
+var top_left : Vector2
+var but_righ : Vector2
+
 
 func _init():
 	effect_callback_type = CompositorEffect.EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
@@ -49,8 +52,10 @@ func _init():
 # Compiles... the shader...?
 func compile_shader(vertex_shader : String, fragment_shader : String) -> RID:
 	var src := RDShaderSource.new()
-	src.source_vertex = vertex_shader
-	src.source_fragment = fragment_shader
+
+	src.set_stage_source(RenderingDevice.SHADER_STAGE_VERTEX, vertex_shader)
+	src.set_stage_source(RenderingDevice.SHADER_STAGE_FRAGMENT, fragment_shader)
+
 	
 	var shader_spirv : RDShaderSPIRV = rd.shader_compile_spirv_from_source(src)
 	
@@ -86,6 +91,8 @@ func initialize_render(framebuffer_format : int):
 			# For some reason godot doesn't make it easy to append vectors to arrays
 			for i in 3: vertex_buffer.push_back(pos[i])
 			for i in 4: vertex_buffer.push_back(color[i])
+	top_left = Vector2(-half_length, -half_length)
+	but_righ = Vector2(half_length, half_length)
 
 
 	var vertex_count = vertex_buffer.size() / 7
@@ -156,7 +163,6 @@ func initialize_render(framebuffer_format : int):
 
 	vertex_format = rd.vertex_format_create(vertex_attrs)
 
-
 	p_vertex_array = rd.vertex_array_create(vertex_buffer.size() / stride, vertex_format, vertex_buffers)
 
 	var index_buffer_bytes : PackedByteArray = index_buffer.to_byte_array()
@@ -168,7 +174,6 @@ func initialize_render(framebuffer_format : int):
 	p_index_array = rd.index_array_create(p_index_buffer, 0, index_buffer.size())
 	p_wire_index_array = rd.index_array_create(p_wire_index_buffer, 0, wire_index_buffer.size())
 	
-
 	initialize_render_pipelines(framebuffer_format)
 
 # Initialization of the render pipeline objects is separated from the above code so that we don't have to regenerate everything when the framebuffer format changes
@@ -178,7 +183,7 @@ func initialize_render_pipelines(framebuffer_format : int) -> void:
 	# The rest of this is setting up the render pipeline object, you can read the godot docs to see different settings here but they are largely irrelevant to this project
 	var raster_state = RDPipelineRasterizationState.new()
 	
-	raster_state.cull_mode = RenderingDevice.POLYGON_CULL_BACK
+	# raster_state.cull_mode = RenderingDevice.POLYGON_CULL_BACK
 	
 	var depth_state = RDPipelineDepthStencilState.new()
 	
@@ -249,12 +254,20 @@ func _render_callback(_effect_callback_type : int, render_data : RenderData):
 
 	var tmp := Time.get_unix_time_from_system() / 1.0
 	var _time : float = tmp - floor(tmp)
+	var _t = fmod(tmp, 2 * (3.14))
 	if prev_time > _time:
 		state = 1.0 - state;
 	buffer.push_back(light_direction.x)
 	buffer.push_back(light_direction.y)
 	buffer.push_back(light_direction.z)
+	buffer.push_back(1.0)
 	buffer.push_back(abs(state - _time))
+	buffer.push_back(_t)
+	buffer.push_back(top_left.x)
+	buffer.push_back(top_left.y)
+	buffer.push_back(but_righ.x)
+	buffer.push_back(but_righ.y)
+	buffer.push_back(1.0)
 	buffer.push_back(1.0)
 	prev_time = _time
 	
@@ -279,7 +292,7 @@ func _render_callback(_effect_callback_type : int, render_data : RenderData):
 	p_render_pipeline_uniform_set = rd.uniform_set_create(uniforms, p_shader, 0)
 
 	# If you frame capture the program with something like NVIDIA NSight you will see this label show up so you can easily see the render time of the terrain
-	rd.draw_command_begin_label("Terrain Mesh", Color(1.0, 1.0, 1.0, 1.0))
+	rd.draw_command_begin_label("barbod quad", Color(1.0, 1.0, 1.0, 1.0))
 
 	# The rest of this code is the creation of the draw call command list whether we are doing wireframe mode or not
 	var draw_list = rd.draw_list_begin(p_framebuffer, rd.DRAW_IGNORE_ALL, clear_colors, 1.0,  0,  Rect2(), 0)

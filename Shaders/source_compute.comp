@@ -1,0 +1,47 @@
+#version 450
+
+layout(local_size_x = 64) in;
+
+// Struct must match GDScript memory layout
+struct Vertex {
+    vec3 position;
+    vec3 normal;
+};
+
+// Triangle indices (3 per triangle)
+layout(std430, binding = 0) readonly buffer IndexBuffer {
+    uint indices[];
+};
+
+// Vertex data buffer
+layout(std430, binding = 1) buffer VertexBuffer {
+    Vertex vertices[];
+};
+
+layout(push_constant) uniform Push {
+    float time;
+};
+
+void main() {
+    uint tri_id = gl_GlobalInvocationID.x;
+
+    uint i0 = indices[tri_id * 3 + 0];
+    uint i1 = indices[tri_id * 3 + 1];
+    uint i2 = indices[tri_id * 3 + 2];
+
+    vec3 p0 = vertices[i0].position;
+    vec3 p1 = vertices[i1].position;
+    vec3 p2 = vertices[i2].position;
+
+    // Apply your animation (emulating vertex shader)
+    p0.y += cos(time + p0.x);
+    p1.y += cos(time + p1.x);
+    p2.y += cos(time + p2.x);
+
+    vec3 normal = normalize(cross(p1 - p0, p2 - p0));
+
+    // Assign the same normal to all three vertices (flat shading)
+    vertices[i0].normal = normal;
+    vertices[i1].normal = normal;
+    vertices[i2].normal = normal;
+}

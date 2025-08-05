@@ -4,27 +4,35 @@
 layout(set = 0, binding = 0, std140) uniform UniformBufferObject {
     mat4 MVP;
     vec3 _LightDirection;
+    float _junk;
     float _time;
+    float _rawtime;
+    vec2 top;
+    vec2 but;
 };
 
-// This is the vertex data layout that we defined in initialize_render after line 198
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec4 a_Color;
 
-// This is what the vertex shader will output and send to the fragment shader.
 layout(location = 2) out vec4 v_Color;
 layout(location = 3) out vec3 pos;
 
 
 #define PI 3.141592653589793238462
 
+vec3 get_pos(vec3 org) {
+    float rawtime = _rawtime;
+    float a = cos((rawtime * 5 + org.x / 3));
+    float b = cos((rawtime * 4 + org.z / 3));
+    float rel_x = (org.x - but.x) / (top.x - but.x) * 2;
+    float rel_y = (org.z - but.y) / (top.y - but.y) * 2;
+    return vec3(org.x, ((rel_x * rel_y) + a + b) * 5, org.z);
+}
+
+
 void main() {
-    // Passes the vertex color over to the fragment shader, even though we don't use it but you can use it if you want I guess
     v_Color = a_Color;
 
-    // The fragment shader also calculates the fractional brownian motion for pixel perfect normal vectors and lighting, so we pass the vertex position to the fragment shader
     pos = a_Position;
-
-    // Multiply final vertex position with model/view/projection matrices to convert to clip space
-    gl_Position = MVP * vec4(pos.x * (1 + _time), _time * 3, pos.z * (1 + 5 * _time), 1);
+   gl_Position = MVP * vec4(get_pos(pos), 1);
 }
